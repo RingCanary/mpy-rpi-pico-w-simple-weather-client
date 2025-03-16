@@ -70,9 +70,13 @@ This project now includes integration with Google Sheets to log temperature data
 2. Delete any code in the editor and paste the contents of the `google_apps_script.js` file
 3. Replace `your_spreadsheet_id` with your actual spreadsheet ID
 4. Save the project with a name (e.g., "Pico W Temperature Logger")
-5. Run the `setupWebApp` function once to initialize the web app:
-   - Click on `Run` > `Run function` > `setupWebApp`
+5. Run the `testWithSampleData` function to verify your script works:
+   - Click on `Run` > `Run function` > `testWithSampleData`
    - Grant the necessary permissions when prompted
+   - Check the Execution log (View > Logs) to see if the test was successful
+6. Run the `setupWebApp` function to initialize the web app:
+   - Click on `Run` > `Run function` > `setupWebApp`
+   - Check the logs for any errors connecting to your spreadsheet
 
 ### 3. Deploy the Web App
 1. Click on `Deploy` > `New deployment`
@@ -83,6 +87,7 @@ This project now includes integration with Google Sheets to log temperature data
    - Who has access: "Anyone" (for simplicity) or "Anyone with Google account" (more secure)
 4. Click `Deploy`
 5. Copy the Web app URL that appears - you'll need this for your Pico W code
+6. **Important**: Test the deployment by opening the URL in a browser. You should see a JSON response with a success message.
 
 ### 4. Configure the Pico W Code
 1. Open `test-2.py` in your preferred editor
@@ -192,6 +197,45 @@ Waiting for next reading cycle...
 ### Stopping the Script
 Press `Ctrl+C` to interrupt the running script.
 
+## Troubleshooting
+
+### No Serial Output
+- Verify you're using the correct serial port
+- Ensure the baud rate is set to 115200
+- Check USB connections
+
+### LEDs Not Working
+- Verify the GP5 LED is connected correctly with a resistor to ground
+- Ensure you're using the Pico W (not the regular Pico) as the code uses the Wi-Fi module
+
+### Script Not Found
+- Use `rshell ls /pyboard` to confirm the file was uploaded correctly
+- Check for typos in the filename when using `exec(open())`
+
+### Wi-Fi Not Scanning
+- Ensure you're using the Pico W (not the regular Pico)
+- Verify the MicroPython firmware is specifically for the Pico W
+
+### Incorrect Temperature Readings
+- The internal temperature sensor is not calibrated for high precision
+- Readings may vary by a few degrees from actual temperature
+- The chip temperature will be higher than ambient temperature
+
+### Google Sheets Integration Issues
+- **400 Bad Request Error**: This typically means there's an issue with the request format or the URL
+  - Verify the Web App URL is correct in your code (it should end with `/exec`)
+  - Make sure you've replaced `your_google_script_web_app_url` with the actual URL
+  - Check that your Google Apps Script is deployed as a web app with proper permissions
+  - Test the web app URL in a browser to ensure it's accessible
+  - Try running the `testWithSampleData` function in the Apps Script editor to verify it works
+  - Check the Apps Script logs for any errors (View > Logs in the Apps Script editor)
+- **Spreadsheet ID Issues**: 
+  - Verify you've replaced `your_spreadsheet_id` in the Apps Script with your actual spreadsheet ID
+  - Run the `testSpreadsheetConnection` function to check connectivity
+- **Permission Issues**:
+  - Make sure you've granted the necessary permissions when prompted
+  - Redeploy the web app if you've made changes to the script
+
 ## Understanding the Output
 
 The script produces output like this:
@@ -226,30 +270,6 @@ Network List:
 - **GP5 LED**: 
   - In test-1.py: Blinks once for each network found (0.2s on, 0.2s off per blink)
   - In test-2.py: Turns on while sending data to Google Sheets, blinks 3 times after successful reading
-
-## Troubleshooting
-
-### No Serial Output
-- Verify you're using the correct serial port
-- Ensure the baud rate is set to 115200
-- Check USB connections
-
-### LEDs Not Working
-- Verify the GP5 LED is connected correctly with a resistor to ground
-- Ensure you're using the Pico W (not the regular Pico) as the code uses the Wi-Fi module
-
-### Script Not Found
-- Use `rshell ls /pyboard` to confirm the file was uploaded correctly
-- Check for typos in the filename when using `exec(open())`
-
-### Wi-Fi Not Scanning
-- Ensure you're using the Pico W (not the regular Pico)
-- Verify the MicroPython firmware is specifically for the Pico W
-
-### Incorrect Temperature Readings
-- The internal temperature sensor is not calibrated for high precision
-- Readings may vary by a few degrees from actual temperature
-- The chip temperature will be higher than ambient temperature
 
 ## Next Steps
 - Add external sensors for more accurate environmental monitoring

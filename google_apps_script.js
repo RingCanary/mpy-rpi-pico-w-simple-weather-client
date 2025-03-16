@@ -12,10 +12,17 @@ const SHEET_NAME = 'Temperature Data';
  */
 function doPost(e) {
   try {
+    // Log the incoming request for debugging
+    console.log("Received POST request");
+    console.log("Content type: " + e.contentType);
+    console.log("Post data: " + JSON.stringify(e.postData));
+    
     // Parse the incoming JSON data
     const jsonData = JSON.parse(e.postData.contents);
+    console.log("Parsed data: " + JSON.stringify(jsonData));
+    
     const rawAdc = jsonData.raw_adc;
-    const deviceId = jsonData.device_id;
+    const deviceId = jsonData.device_id || "unknown_device";
     
     // Get current timestamp
     const timestamp = new Date();
@@ -37,6 +44,10 @@ function doPost(e) {
     })).setMimeType(ContentService.MimeType.JSON);
     
   } catch (error) {
+    // Log the error
+    console.error("Error processing request: " + error);
+    console.error("Stack: " + error.stack);
+    
     // Return error response
     return ContentService.createTextOutput(JSON.stringify({
       'status': 'error',
@@ -46,52 +57,71 @@ function doPost(e) {
 }
 
 /**
+ * Process GET requests (for testing the deployment)
+ */
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    'status': 'success',
+    'message': 'Google Apps Script is running correctly. Use POST to send data.',
+    'timestamp': new Date().toISOString()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
  * Log data to the spreadsheet
  */
 function logData(timestamp, deviceId, rawAdc, voltage, temperature) {
-  // Open the spreadsheet
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  
-  // Get or create the sheet
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
+  try {
+    // Open the spreadsheet
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     
-    // Add headers if this is a new sheet
+    // Get or create the sheet
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+      
+      // Add headers if this is a new sheet
+      sheet.appendRow([
+        'Timestamp', 
+        'Device ID', 
+        'Raw ADC Value', 
+        'Voltage (V)', 
+        'Temperature (°C)'
+      ]);
+      
+      // Format headers
+      sheet.getRange(1, 1, 1, 5).setFontWeight('bold');
+      
+      // Set column widths
+      sheet.setColumnWidth(1, 180); // Timestamp
+      sheet.setColumnWidth(2, 100); // Device ID
+      sheet.setColumnWidth(3, 120); // Raw ADC
+      sheet.setColumnWidth(4, 100); // Voltage
+      sheet.setColumnWidth(5, 120); // Temperature
+    }
+    
+    // Format timestamp
+    const formattedTimestamp = Utilities.formatDate(
+      timestamp, 
+      Session.getScriptTimeZone(), 
+      'yyyy-MM-dd HH:mm:ss'
+    );
+    
+    // Append data row
     sheet.appendRow([
-      'Timestamp', 
-      'Device ID', 
-      'Raw ADC Value', 
-      'Voltage (V)', 
-      'Temperature (°C)'
+      formattedTimestamp,
+      deviceId,
+      rawAdc,
+      voltage.toFixed(3),
+      temperature.toFixed(1)
     ]);
     
-    // Format headers
-    sheet.getRange(1, 1, 1, 5).setFontWeight('bold');
-    
-    // Set column widths
-    sheet.setColumnWidth(1, 180); // Timestamp
-    sheet.setColumnWidth(2, 100); // Device ID
-    sheet.setColumnWidth(3, 120); // Raw ADC
-    sheet.setColumnWidth(4, 100); // Voltage
-    sheet.setColumnWidth(5, 120); // Temperature
+    console.log("Data logged successfully to spreadsheet");
+    return true;
+  } catch (error) {
+    console.error("Error logging data: " + error);
+    return false;
   }
-  
-  // Format timestamp
-  const formattedTimestamp = Utilities.formatDate(
-    timestamp, 
-    Session.getScriptTimeZone(), 
-    'yyyy-MM-dd HH:mm:ss'
-  );
-  
-  // Append data row
-  sheet.appendRow([
-    formattedTimestamp,
-    deviceId,
-    rawAdc,
-    voltage.toFixed(3),
-    temperature.toFixed(1)
-  ]);
 }
 
 /**
@@ -103,6 +133,9 @@ function setupWebApp() {
   const url = ScriptApp.getService().getUrl();
   console.log('Deploy this web app and use this URL in your Pico W code:');
   console.log(url);
+  
+  // Test if the spreadsheet ID is valid
+  testSpreadsheetConnection();
 }
 
 /**
@@ -119,4 +152,26 @@ function testSpreadsheetConnection() {
     console.error('Error connecting to spreadsheet:', error);
     return 'Error: ' + error;
   }
+}
+
+/**
+ * Manual test function to simulate receiving data from Pico W
+ * Run this function to test the script without a physical Pico W
+ */
+function testWithSampleData() {
+  // Create a mock event object
+  const mockEvent = {
+    postData: {
+      contents: JSON.stringify({
+        raw_adc: 28756,
+        device_id: "test_device"
+      })
+    },
+    contentType: "application/json"
+  };
+  
+  // Process the mock event
+  const result = doPost(mockEvent);
+  console.log("Test result: " + result.getContent());
+  return "Test completed";
 }
