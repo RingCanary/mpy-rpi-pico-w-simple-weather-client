@@ -56,6 +56,41 @@ pip install rshell
 # https://www.putty.org/
 ```
 
+## Google Sheets Integration
+This project now includes integration with Google Sheets to log temperature data. To set up Google Sheets integration, follow these steps:
+
+### 1. Create a Google Sheet
+1. Go to [Google Sheets](https://sheets.google.com/) and create a new spreadsheet
+2. Rename the spreadsheet to something meaningful (e.g., "Pico W Temperature Data")
+3. Note the spreadsheet ID from the URL (the long string between `/d/` and `/edit` in the URL)
+
+### 2. Set Up Google Apps Script
+1. In your Google Sheet, click on `Extensions` > `Apps Script`
+2. Delete any code in the editor and paste the contents of the `google_apps_script.js` file
+3. Replace `your_spreadsheet_id` with your actual spreadsheet ID
+4. Save the project with a name (e.g., "Pico W Temperature Logger")
+5. Run the `setupWebApp` function once to initialize the web app:
+   - Click on `Run` > `Run function` > `setupWebApp`
+   - Grant the necessary permissions when prompted
+
+### 3. Deploy the Web App
+1. Click on `Deploy` > `New deployment`
+2. For deployment type, select `Web app`
+3. Fill in the following:
+   - Description: "Pico W Temperature Logger"
+   - Execute as: "Me"
+   - Who has access: "Anyone" (for simplicity) or "Anyone with Google account" (more secure)
+4. Click `Deploy`
+5. Copy the Web app URL that appears - you'll need this for your Pico W code
+
+### 4. Configure the Pico W Code
+1. Open `test-2.py` in your preferred editor
+2. Replace the placeholder values:
+   - `your_wifi_ssid`: Your Wi-Fi network name
+   - `your_wifi_password`: Your Wi-Fi password
+   - `your_google_script_web_app_url`: The Web app URL from step 3.5
+3. Upload the modified script to your Pico W using rshell
+
 ## Usage
 
 ### Uploading the Script
