@@ -1,10 +1,29 @@
 import network
 import time
-from machine import Pin
+from machine import Pin, ADC
+import math
 
 # Initialize LEDs
 led_onboard = Pin("LED", Pin.OUT)  # Onboard LED tied to Wi-Fi module
 led_gp5 = Pin(5, Pin.OUT)          # LED soldered to GP5
+
+# Initialize temperature sensor (ADC4 is connected to the internal temperature sensor)
+temp_sensor = ADC(4)
+# Conversion factor for temperature calculation
+conversion_factor = 3.3 / (65535)
+
+def read_temperature():
+    # Read the raw temperature value
+    raw_temp = temp_sensor.read_u16()
+    
+    # Convert the raw value to voltage
+    voltage = raw_temp * conversion_factor
+    
+    # Convert voltage to temperature (Celsius)
+    # The formula is from the RP2040 datasheet
+    temperature = 27 - (voltage - 0.706) / 0.001721
+    
+    return temperature
 
 def wifi_scan_blink():
     # Turn on onboard LED to indicate scan start
@@ -70,5 +89,10 @@ def wifi_scan_blink():
 # Main loop
 print("Starting Wi-Fi scanner...")
 while True:
+    # Read and display temperature
+    temp = read_temperature()
+    print("\nCurrent temperature: {:.2f}°C".format(temp))
+    
+    # Run Wi-Fi scan
     wifi_scan_blink()
     time.sleep(5)
