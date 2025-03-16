@@ -236,6 +236,39 @@ Press `Ctrl+C` to interrupt the running script.
   - Make sure you've granted the necessary permissions when prompted
   - Redeploy the web app if you've made changes to the script
 
+## Known Issues and Troubleshooting
+
+### Google Sheets Integration
+
+#### 400 Bad Request Error
+When sending data to Google Sheets, you may encounter a 400 Bad Request error in the console output:
+
+```
+Failed to send data. Status code: 400
+Response: <!DOCTYPE html>...
+```
+
+**Important Note:** Despite this error, the data is still successfully appended to the Google Sheet. This appears to be a quirk in how Google Apps Script handles certain requests from MicroPython's `urequests` library on the Pico W.
+
+**Why this happens:**
+- The Google Apps Script successfully processes the incoming data and adds it to the spreadsheet
+- However, the response sent back to the Pico W contains HTML instead of the expected JSON
+- MicroPython's `urequests` library has limitations in handling these complex responses
+
+**Solution:**
+- For testing and data collection purposes, you can safely ignore this error as long as data appears in your spreadsheet
+- The LED feedback (fast blinking for success, slow blinking for failure) will still indicate connection issues if they occur
+- If you need to confirm data transmission, check your Google Sheet directly
+
+#### Improving Reliability
+If you want to minimize these errors:
+
+1. Make sure your Google Apps Script is deployed as a web app with "Anyone" access
+2. Verify that your spreadsheet ID is correctly set in the Google Apps Script
+3. Keep your data payloads small and simple
+
+For most temperature logging applications, the current implementation is sufficient despite the error messages.
+
 ## Understanding the Output
 
 The script produces output like this:
