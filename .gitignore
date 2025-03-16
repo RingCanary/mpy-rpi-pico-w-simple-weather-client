@@ -1,0 +1,23 @@
+# gitignore file for a micropython project
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.env
+*.venv
+venv/
+env/
+.DS_Store
+.idea/
+.vscode/
+build/
+dist/
+*.hex
+*.uf2
+*.mpy
