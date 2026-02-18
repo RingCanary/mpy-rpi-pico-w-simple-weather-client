@@ -1,0 +1,42 @@
+[project]
+name = "pi5-hub"
+version = "0.1.0"
+description = "Pi5 telemetry hub for environmental sensors"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "asyncpg>=0.30.0",
+    "apscheduler>=3.11.0",
+    "httpx>=0.28.0",
+    "google-api-python-client>=2.154.0",
+    "google-auth>=2.36.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+pi5-hub = "pi5_hub.main:main"
+pi5-hub-scheduler = "pi5_hub.scheduler:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pi5_hub"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -21,3 +21,4 @@ dist/
 *.hex
 *.uf2
 *.mpy
+uv.lock
