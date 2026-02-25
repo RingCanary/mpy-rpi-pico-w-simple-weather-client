@@ -76,7 +76,7 @@ class SlackClient:
             lines.append(f"* Pressure: {report_data['avg_pressure']:.1f} hPa")
         if report_data.get("avg_gas") is not None:
             lines.append(f"* Gas: {report_data['avg_gas']:.1f} kOhms")
-        lines.append(f"* Readings: {report_data.get('reading_count', 0)}")
+        lines.append(f"* Data Point (Hourly count - DB Rows): {report_data.get('reading_count', 0)}")
         return await self.post_message("\n".join(lines))
 
 

@@ -50,6 +50,8 @@ class ReportGenerator:
         """Distribute a report to Slack and Sheets/Apps Script."""
         await self.repo.insert_hourly_report(report)
 
+        avg_gas_kohm = report.avg_gas / 1000.0 if report.avg_gas is not None else None
+
         report_data = {
             "hour_start": report.hour_start.isoformat(),
             "device_id": report.device_id,
@@ -59,7 +61,7 @@ class ReportGenerator:
             "min_temperature": report.min_temperature,
             "avg_humidity": report.avg_humidity,
             "avg_pressure": report.avg_pressure,
-            "avg_gas": report.avg_gas,
+            "avg_gas": avg_gas_kohm,
             "total_stink_count": report.total_stink_count,
             "total_success_count": report.total_success_count,
             "total_requests": report.total_requests,

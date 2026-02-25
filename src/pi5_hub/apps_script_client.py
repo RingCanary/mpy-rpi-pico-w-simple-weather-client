@@ -60,7 +60,7 @@ class AppsScriptClient:
             payload["temperature"] = report.avg_temperature
             payload["humidity"] = report.avg_humidity
             payload["pressure"] = report.avg_pressure
-            payload["gas"] = report.avg_gas
+            payload["gas"] = report.avg_gas / 1000.0 if report.avg_gas is not None else None
 
         # Counter fields
         payload["stink_count"] = report.total_stink_count
